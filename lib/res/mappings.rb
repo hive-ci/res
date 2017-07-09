@@ -12,7 +12,7 @@ module Res
       case @type
       when "Junit"
         @context = ["JUnit::testsuite", "JUnit::testsuites"]
-        @case = ["JUnit::testcase"]      
+        @case = ["JUnit::testcase"]
       when "Cucumber"
         @context = ["Cucumber::Feature", "Cucumber::ScenarioOutline"]
         @case = ["Cucumber::Scenario"]

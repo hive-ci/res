@@ -4,14 +4,14 @@ module Res
   module Parsers
     class AndroidJunit
       attr_accessor :io
-     
+
       def initialize(instrument_output)
         result = parse(instrument_output)
-        ir = ::Res::IR.new( :type        => 'AndroidJUnitRunner', 
-                            :started     => '',
-                            :finished    => Time.now,
-                            :results     => result
-                            )
+        ir = ::Res::IR.new(type: 'AndroidJUnitRunner',
+                           started: '',
+                           finished: Time.now,
+                           results: result)
+
         @io = File.open('./instruments.res', 'w')
         @io.puts ir.json
         @io.close
@@ -19,11 +19,11 @@ module Res
 
       def parse(output)
         test_complete = false
-        total_tests = 0
-        passed = 0
-        failed = 0
-        class_name = []
-        result = []
+        total_tests   = 0
+        passed        = 0
+        failed        = 0
+        class_name    = []
+        result        = []
         test = {
           type: 'AndroidJUnit::Test',
           name: 'UNKNOWN',
@@ -35,25 +35,25 @@ module Res
             if !line.match('INSTRUMENTATION_RESULT') && !test_complete
 
               if line.match('INSTRUMENTATION_STATUS: numtests=(.*)$')
-                 total_tests =  Regexp.last_match[1].to_i
+                total_tests = Regexp.last_match[1].to_i
               end
 
               if line.match('INSTRUMENTATION_STATUS_CODE: (.*)$')
-                  case Regexp.last_match[1].strip
-                    when '1'
-                      # Skip if this is just the 'pre-run' test
-                      next
-                    when '0'
-                      test[:status] = 'passed'
-                      passed += 1
-                    when '-2'
-                      test[:status] = 'failed'
-                    when '-3'
-                      # Ignored (skipped) test
-                      test[:status] = 'ignored'
-                    else
-                      test[:status] = 'unknown'
-                  end
+                case Regexp.last_match[1].strip
+                when '1'
+                  # Skip if this is just the 'pre-run' test
+                  next
+                when '0'
+                  test[:status] = 'passed'
+                  passed += 1
+                when '-2'
+                  test[:status] = 'failed'
+                when '-3'
+                  # Ignored (skipped) test
+                  test[:status] = 'ignored'
+                else
+                  test[:status] = 'unknown'
+                end
                 result.last[:children] << test if test[:status] != 'ignored'
                 test = {
                   type: 'AndroidJUnit::Test',
@@ -69,7 +69,7 @@ module Res
                   result << {
                     type: 'AndroidJUnit::Class',
                     name: class_name.last,
-                    children: Array.new
+                    children: []
                   }
                 end
               elsif line.include?('test=')

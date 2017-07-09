@@ -3,29 +3,28 @@ require 'res/config'
 module Res
   module Reporters
     class Testmine
-
       attr_accessor :url, :config
 
       def initialize(args)
         @url = args[:url]
-        @config = Res::Config.new([:project, :component, :suite, :url, :target, :version],
-                                  :optional => [:hive_job_id, :cert, :cacert, :ssl_verify_mode],
-                                  :pre_env  => 'TESTMINE_')
+        @config = Res::Config.new(%i[project component suite url target version],
+                                  optional: %i[hive_job_id cert cacert ssl_verify_mode],
+                                  pre_env: 'TESTMINE_')
         config.process(args)
       end
 
-      def submit_results(ir, args = nil)
+      def submit_results(ir, _args = nil)
         # Set missing project information
         ir.project     = config.project
         ir.suite       = config.suite
         ir.target      = config.target
-        ir.hive_job_id = config.hive_job_id 
-        
+        ir.hive_job_id = config.hive_job_id
+
         # Load world information into json hash
         ir.world = {
-          :project   => @config.project,
-          :component => @config.component,
-          :version   => @config.version,
+          project: @config.project,
+          component: @config.component,
+          version: @config.version
         }
 
         # Submit to testmine
@@ -40,14 +39,13 @@ module Res
           @http.ca_file = config.cacert if config.cacert
           @http.verify_mode = config.ssl_verify_mode if config.ssl_verify_mode
         end
-        
-        request = Net::HTTP::Post.new(config.url + "/api/v1/submit")
+
+        request = Net::HTTP::Post.new(config.url + '/api/v1/submit')
         request.content_type = 'application/json'
-        request.set_form_data({"data" => ir.to_json})
+        request.set_form_data('data' => ir.to_json)
         response = @http.request(request)
         response.body
       end
-
     end
   end
 end
