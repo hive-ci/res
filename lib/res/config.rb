@@ -33,11 +33,8 @@ module Res
 
     def load_from_config(config_file)
       config = {}
-      if File.exist?(config_file)
-        config = Res::Config.symbolize_keys(YAML.safe_load(File.open(config_file)))
-      else
-        raise "Couldn't find config file '#{config_file}'"
-      end
+      raise "Couldn't find config file '#{config_file}'" unless File.exist?(config_file)
+      config = Res::Config.symbolize_keys(YAML.safe_load(File.open(config_file)))
       config
     end
 
